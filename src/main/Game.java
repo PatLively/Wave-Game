@@ -14,6 +14,8 @@ public class Game extends Canvas implements Runnable{
 	private Thread thread;
 	private boolean running = false;
 	
+	public static boolean paused = false;
+	
 	// Initialize
 	private Random r;
 	private Handler handler;
@@ -39,6 +41,10 @@ public class Game extends Canvas implements Runnable{
 		
 		this.addKeyListener(new KeyInput(handler));
 		this.addMouseListener(menu);
+		
+		AudioPlayer.load();
+		
+		AudioPlayer.getMusic("music").loop();
 		
 		new Window(WIDTH, HEIGHT, "Wave Game!", this);
 		
