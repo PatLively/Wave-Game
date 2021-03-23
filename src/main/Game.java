@@ -16,6 +16,11 @@ public class Game extends Canvas implements Runnable{
 	
 	public static boolean paused = false;
 	
+	// 0 =  normal
+	// 1 = hard
+	public int diff = 0;
+	
+	
 	// Initialize
 	private Random r;
 	private Handler handler;
@@ -25,6 +30,7 @@ public class Game extends Canvas implements Runnable{
 	
 	public enum STATE {
 		Menu,
+		Select,
 		Help,
 		Game,
 		End
@@ -35,11 +41,11 @@ public class Game extends Canvas implements Runnable{
 	public Game() {
 		handler = new Handler(this);
 		hud = new HUD();
-		spawn = new Spawn(handler, hud);
+		spawn = new Spawn(handler, hud, this);
 		menu = new Menu(this, handler, hud);
 		r = new Random();
 		
-		this.addKeyListener(new KeyInput(handler));
+		this.addKeyListener(new KeyInput(handler, this));
 		this.addMouseListener(menu);
 		
 		AudioPlayer.load();
@@ -108,19 +114,24 @@ public class Game extends Canvas implements Runnable{
 	}
 	
 	private void tick() {
-		handler.tick();
+		
 		if(gameState == STATE.Game) {
-			hud.tick();
-			spawn.tick();
-		} else if(gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End ) {
+			if(!paused) {
+				hud.tick();
+				spawn.tick();
+				handler.tick();
+
+				if(HUD.HEALTH <= 0) {
+					HUD.HEALTH = 100;
+					gameState = STATE.End;
+					handler.object.clear();
+				}
+			}
+		} else if(gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End || gameState == STATE.Select) {
 			menu.tick();
+			handler.tick();
 		}
 		
-		if(HUD.HEALTH <= 0) {
-			HUD.HEALTH = 100;
-			gameState = STATE.End;
-			handler.object.clear();
-		}
 
 	}
 	
@@ -137,10 +148,14 @@ public class Game extends Canvas implements Runnable{
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		handler.render(g);
+		if(paused) {
+			g.setColor(Color.white);
+			g.drawString("PAUSED", 100, 100);
+		}
 		
 		if(gameState == STATE.Game) {
 			hud.render(g);
-		} else if(gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End) {
+		} else if(gameState == STATE.Menu || gameState == STATE.Help || gameState == STATE.End || gameState == STATE.Select) {
 			menu.render(g);
 		}
 		

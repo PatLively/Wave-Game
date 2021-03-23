@@ -3,15 +3,19 @@ package main;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import main.Game.STATE;
+
 public class KeyInput extends KeyAdapter {
 	
 	private Handler handler;
 	private boolean[] keys  = new boolean[4];
 	
-	Game game = new Game();
+	Game game;
 	
-	public KeyInput(Handler handler) {
+	public KeyInput(Handler handler, Game game) {
 		this.handler = handler;
+		
+		this.game = game;
 		
 		keys[0] = false; // w
 		keys[1] = false; // s
@@ -47,8 +51,11 @@ public class KeyInput extends KeyAdapter {
 		
 		if(key == KeyEvent.VK_P) {
 			
-			if(Game.paused) Game.paused = false;
-			else Game.paused = true;
+			if(game.gameState == STATE.Game) {
+				if(Game.paused) Game.paused = false;
+				else Game.paused = true;
+			}
+			
 		}
 		
 		if(key == KeyEvent.VK_ESCAPE) System.exit(1); 
